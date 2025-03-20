@@ -1,4 +1,5 @@
 import React from "react";
+import './index.css';
 
 const rooms = [
   { id: 1, number: "101", patients: "Lorem, Ipsum, Dolor" },
@@ -10,7 +11,7 @@ const rooms = [
 const RetirementHome = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-700">
-      <div className="w-[800px] bg-gray-200 p-6 rounded-lg shadow-lg">
+      <div className="w-[800px] bg-blue-200 p-6 rounded-lg shadow-lg">
         <h1 className="text-center text-xl font-bold mb-4">Retirement home</h1>
         <div className="space-y-4">
           {rooms.map((room) => (
@@ -31,5 +32,6 @@ const RetirementHome = () => {
     </div>
   );
 };
+
 
 export default RetirementHome;
