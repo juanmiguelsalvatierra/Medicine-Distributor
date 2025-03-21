@@ -33,5 +33,4 @@ const RetirementHome = () => {
   );
 };
 
-
 export default RetirementHome;
