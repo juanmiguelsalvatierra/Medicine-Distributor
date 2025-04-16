@@ -4,7 +4,7 @@ import './index.css';
 
 const rooms = [
   { id: 1, number: "101", patients: [
-      { name: "Lorem", medications: ["Med1", "Med2", "Med3"] },
+      { name: "Lorem", medications: [{name: "Paracetamol", quantity: 10, dosage: "2x daily"}] },
       { name: "Ipsum", medications: ["Med4", "Med5"] },
       { name: "Dolor", medications: ["Med6", "Med7", "Med8"] }
     ]
@@ -50,9 +50,14 @@ const RetirementHome = () => {
 
   const handleAddMedication = (roomIndex, patientIndex) => {
     const updatedMedications = [...medications];
-    updatedMedications[roomIndex].patients[patientIndex].medications.push("");
+    updatedMedications[roomIndex].patients[patientIndex].medications.push({
+      name: "",
+      quantity: "",
+      dosage: "",
+    });
     setMedications(updatedMedications);
   };
+  
 
   const handleSaveMedications = () => {
     // Save medications logic here
@@ -68,7 +73,10 @@ const RetirementHome = () => {
     });
   };
 
+  
+
   const handleSendRooms = () => {
+    console.log("Sent information to robot:", rooms);
     const client = mqtt.connect('ws://test.mosquitto.org:8081/mqtt', {
       connectTimeout: 60 * 1000, // 60 seconds
       reconnectPeriod: 1000, // Reconnect every 1 second
@@ -97,9 +105,31 @@ const RetirementHome = () => {
     setMedications(updatedMedications);
   };
 
+  /*const handleDeleteMedication = (roomIndex, patientIndex, medicationIndex) => {
+    const updatedMedications = [...medications];
+    updatedMedications[roomIndex].patients[patientIndex].medications.splice(medicationIndex, 1);
+    setMedications(updatedMedications);
+  };*/
+
+  const [isBlackBackground, setIsBlackBackground] = useState(false);
+
+  const toggleBackgroundColor = () => {
+    setIsBlackBackground(!isBlackBackground);
+  };
+
+  
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-700">
-      <div className="w-[1000px] bg-blue-200 p-20 rounded-lg shadow-lg">
+    <div
+      className={`flex justify-center items-center min-h-screen ${
+        isBlackBackground ? "bg-black text-white" : "bg-gray-700 text-black"
+      }`}
+    >
+      <div
+      className={`w-[1000px] ${
+        isBlackBackground ? "bg-black text-white" : "bg-blue-200 text-black"
+      } p-20 rounded-lg shadow-lg`}
+    >
         <h1 className="text-center text-xl font-bold mb-4">Retirement home</h1>
         <div className="space-y-4">
           {medications.map((room, roomIndex) => (
@@ -110,7 +140,11 @@ const RetirementHome = () => {
               <div className="flex justify-between w-full">
                 <span className="font-semibold">Room {room.number}</span>
                 <button
-                  className="bg-blue-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-blue-500"
+                  className={`px-4 py-2 rounded-lg font-semibold ${
+                    isBlackBackground
+                      ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                      : "bg-blue-400 text-white hover:bg-blue-500"
+                  }`}
                   onClick={() => handleEditClick(room.id)}
                 >
                   {expandedRoom === room.id ? 'Close' : 'Edit'}
@@ -129,13 +163,21 @@ const RetirementHome = () => {
                           className="bg-gray-700 border border-gray-500 rounded-md text-white px-2 py-1"
                         />
                         <button
-                          className="bg-blue-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-blue-500"
+                          className={`px-4 py-2 rounded-lg font-semibold ${
+                            isBlackBackground
+                              ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                              : "bg-blue-400 text-white hover:bg-blue-500"
+                          }`}
                           onClick={() => handlePatientClick(`${roomIndex}-${patientIndex}`)}
                         >
                           {expandedPatient === `${roomIndex}-${patientIndex}` ? 'Hide Medications' : 'Show Medications'}
                         </button>
                         <button
-                          className="bg-red-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-500"
+                          className={`px-4 py-2 rounded-lg font-semibold ${
+                            isBlackBackground
+                              ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                              : "bg-red-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-500"
+                          }`}
                           onClick={() => handleDeletePatient(roomIndex, patientIndex)}
                         >
                           Delete
@@ -149,23 +191,55 @@ const RetirementHome = () => {
                       <ul className="list-disc list-inside">
                         {room.patients[expandedPatient.split('-')[1]].medications.map((med, medIndex) => (
                           <li key={medIndex} className="text-gray-300">
-                            <input
-                              type="text"
-                              value={med}
-                              onChange={(e) => handleMedicationChange(roomIndex, expandedPatient.split('-')[1], medIndex, e.target.value)}
-                              className="bg-gray-700 border border-gray-500 rounded-md text-white px-2 py-1"
-                            />
+                            <div className="flex space-x-2 mb-2">
+                              <input
+                                type="text"
+                                placeholder="Name"
+                                value={med.name || ""}
+                                onChange={(e) =>
+                                  handleMedicationChange(roomIndex, expandedPatient.split('-')[1], medIndex, { ...med, name: e.target.value })
+                                }
+                                className="bg-gray-700 border border-gray-500 rounded-md text-white px-2 py-1 w-1/3"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Quantity"
+                                value={med.quantity || ""}
+                                onChange={(e) =>
+                                  handleMedicationChange(roomIndex, expandedPatient.split('-')[1], medIndex, { ...med, quantity: e.target.value })
+                                }
+                                className="bg-gray-700 border border-gray-500 rounded-md text-white px-2 py-1 w-1/3"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Dosage"
+                                value={med.dosage || ""}
+                                onChange={(e) =>
+                                  handleMedicationChange(roomIndex, expandedPatient.split('-')[1], medIndex, { ...med, dosage: e.target.value })
+                                }
+                                className="bg-gray-700 border border-gray-500 rounded-md text-white px-2 py-1 w-1/3"
+                              />
+                            </div>
+
                           </li>
                         ))}
                       </ul>
                       <button
-                        className="bg-blue-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-blue-500 mt-2"
+                        className={`px-4 py-2 rounded-lg font-semibold ${
+                          isBlackBackground
+                            ? "bg-yellow-400 text-black hover:bg-yellow-500 mt-2"
+                            : "bg-blue-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-blue-500 mt-2"
+                        }`}
                         onClick={() => handleAddMedication(roomIndex, expandedPatient.split('-')[1])}
                       >
                         Add Medication
                       </button>
                       <button
-                        className="bg-green-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-green-500 mt-2 ml-2"
+                        className={`px-4 py-2 rounded-lg font-semibold ${
+                          isBlackBackground
+                            ? "bg-yellow-400 text-black hover:bg-yellow-500 mt-2 ml-2"
+                            : "bg-green-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-green-500 mt-2 ml-2"
+                        }`}
                         onClick={handleSaveMedications}
                       >
                         Save Medications
@@ -173,7 +247,11 @@ const RetirementHome = () => {
                     </div>
                   )}
                   <button
-                    className="bg-green-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-green-500 mt-2"
+                    className={`px-4 py-2 rounded-lg font-semibold ${
+                      isBlackBackground
+                        ? "bg-yellow-400 text-black hover:bg-yellow-500 mt-2"
+                        : "bg-green-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-green-500 mt-2"
+                    }`}
                     onClick={() => handleAddPatient(roomIndex)}
                   >
                     Add Patient
@@ -184,12 +262,28 @@ const RetirementHome = () => {
           ))}
         </div>
         <button
-          className="bg-red-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-500 mt-4"
+          className={`px-4 py-2 rounded-lg font-semibold ${
+            isBlackBackground
+              ? "bg-yellow-400 text-black hover:bg-yellow-500 mt-4"
+              : "bg-green-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-green-500 mt-4"
+          }`}
           onClick={handleSendRooms}
         >
-          Send Rooms Data
+          Send Robot
         </button>
       </div>
+      <div className="fixed bottom-4 w-full flex justify-center">
+      <button
+        className={`px-4 py-2 rounded-lg font-semibold ${
+          isBlackBackground
+            ? "bg-yellow-400 text-black hover:bg-yellow-500"
+            : "bg-green-500 px-6 py-3 rounded-lg text-white font-semibold hover:bg-green-600"
+        }`}
+        onClick={toggleBackgroundColor}
+      >
+        Color impaired version
+      </button>
+    </div>
     </div>
   );
 };
