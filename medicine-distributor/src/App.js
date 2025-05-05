@@ -4,7 +4,7 @@ import './index.css';
 
 const rooms = [
   { id: 1, number: "101", patients: [
-      { name: "Lorem", medications: [{name: "Paracetamol", quantity: 10, dosage: "2x daily"}] },
+      { name: "Lorem", medications: [{name: "Paracetamol", quantity: 10, dosage: "50mg", frequency: "2x daily"}] },
       { name: "Ipsum", medications: ["Med4", "Med5"] },
       { name: "Dolor", medications: ["Med6", "Med7", "Med8"] }
     ]
@@ -102,6 +102,12 @@ const RetirementHome = () => {
   const handleDeletePatient = (roomIndex, patientIndex) => {
     const updatedMedications = [...medications];
     updatedMedications[roomIndex].patients.splice(patientIndex, 1);
+    setMedications(updatedMedications);
+  };
+
+  const handleDeleteMedication = (roomIndex, patientIndex, medIndex) => {
+    const updatedMedications = [...medications];
+    updatedMedications[roomIndex].patients[patientIndex].medications.splice(medIndex, 1);
     setMedications(updatedMedications);
   };
 
@@ -219,6 +225,22 @@ const RetirementHome = () => {
                                 }
                                 className="bg-gray-700 border border-gray-500 rounded-md text-white px-2 py-1 w-1/3"
                               />
+                              <input
+                                type="text"
+                                placeholder="Frequency"
+                                value={med.frequency || ""}
+                                onChange={(e) =>
+                                  handleMedicationChange(roomIndex, expandedPatient.split('-')[1], medIndex, { ...med, frequency: e.target.value })
+                                }
+                                className="bg-gray-700 border border-gray-500 rounded-md text-white px-2 py-1 w-1/3"
+                              />
+
+                              <button
+                                        className="bg-red-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-500"
+                                        onClick={() => handleDeleteMedication(roomIndex, expandedPatient.split('-')[1], medIndex)}
+                                      >
+                                        Delete
+                                      </button>
                             </div>
 
                           </li>
