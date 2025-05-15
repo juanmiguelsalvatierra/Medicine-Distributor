@@ -4,27 +4,21 @@ import './index.css';
 
 const rooms = [
   { id: 1, number: "101", patients: [
-      { name: "Lorem", medications: [{name: "Paracetamol", quantity: 10, dosage: "50mg", frequency: "2x daily"}] },
-      { name: "Ipsum", medications: ["Med4", "Med5"] },
-      { name: "Dolor", medications: ["Med6", "Med7", "Med8"] }
+      { name: "Max", medications: [{name: "Paracetamol", quantity: 3, dosage: "50mg", frequency: "2x daily"},
+        {name: "Cocaine", quantity: 2, dosage: "50mg", frequency: "2x daily"}
+      ] }
     ]
   },
   { id: 2, number: "102", patients: [
-      { name: "Amet", medications: ["Med9", "Med10"] },
-      { name: "Kasd", medications: ["Med11", "Med12"] },
-      { name: "Sanctus", medications: ["Med13"] }
+      { name: "Juan", medications: [{name: "Cocaine", quantity: 0, dosage: "50mg", frequency: "2x daily"}] }
     ]
   },
   { id: 3, number: "103", patients: [
-      { name: "Lorem", medications: ["Med14", "Med15", "Med16"] },
-      { name: "Ipsum", medications: ["Med17", "Med18"] },
-      { name: "Dolor", medications: ["Med19", "Med20", "Med21"] }
+      { name: "Bernhard", medications: [{name: "Ibuprofen", quantity: 0, dosage: "50mg", frequency: "2x daily"}] }
     ]
   },
   { id: 4, number: "104", patients: [
-      { name: "Lorem", medications: ["Med22"] },
-      { name: "Ipsum", medications: ["Med23", "Med24"] },
-      { name: "Dolor", medications: ["Med25", "Med26", "Med27"] }
+      { name: "Adam", medications: [{name: "Paracetamol", quantity: 0, dosage: "50mg", frequency: "2x daily"}] }
     ]
   }
 ];
@@ -63,7 +57,7 @@ const RetirementHome = () => {
     // Save medications logic here
     console.log("Medications saved:", medications);
 
-    const client = mqtt.connect('ws://test.mosquitto.org:8081/mqtt', {
+    const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', {
       connectTimeout: 60 * 1000, // 60 seconds
       reconnectPeriod: 1000, // Reconnect every 1 second
     });
@@ -73,11 +67,11 @@ const RetirementHome = () => {
     });
   };
 
-  
+  //ws://test.mosquitto.org:8081/mqtt'
 
   const handleSendRooms = () => {
     console.log("Sent information to robot:", rooms);
-    const client = mqtt.connect('ws://test.mosquitto.org:8081/mqtt', {
+    const client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', {
       connectTimeout: 60 * 1000, // 60 seconds
       reconnectPeriod: 1000, // Reconnect every 1 second
     });
@@ -236,7 +230,11 @@ const RetirementHome = () => {
                               />
 
                               <button
-                                        className="bg-red-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-500"
+                                        className={`px-4 py-2 rounded-lg font-semibold ${
+                                          isBlackBackground
+                                            ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                                            : "bg-red-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-500"
+                                        }`}
                                         onClick={() => handleDeleteMedication(roomIndex, expandedPatient.split('-')[1], medIndex)}
                                       >
                                         Delete
@@ -272,7 +270,7 @@ const RetirementHome = () => {
                     className={`px-4 py-2 rounded-lg font-semibold ${
                       isBlackBackground
                         ? "bg-yellow-400 text-black hover:bg-yellow-500 mt-2"
-                        : "bg-green-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-green-500 mt-2"
+                        : "bg-blue-400 px-4 py-2 rounded-lg text-white font-semibold hover:bg-blue-500 mt-2"
                     }`}
                     onClick={() => handleAddPatient(roomIndex)}
                   >
@@ -299,7 +297,7 @@ const RetirementHome = () => {
         className={`px-4 py-2 rounded-lg font-semibold ${
           isBlackBackground
             ? "bg-yellow-400 text-black hover:bg-yellow-500"
-            : "bg-green-500 px-6 py-3 rounded-lg text-white font-semibold hover:bg-green-600"
+            : "bg-yellow-500 px-6 py-3 rounded-lg text-black font-semibold hover:bg-yellow-600"
         }`}
         onClick={toggleBackgroundColor}
       >
